@@ -147,7 +147,7 @@ const LogIn = () => {
 						else if (error.response.data.password[0] === 'This password is entirely numeric.')
 							setErrorPassword(t('This password is entirely numeric.'));
 						else 
-							setErrorPassword(t('Incorrect format of the password.'));
+							setErrorPassword(t('Incorrect format of the password. It must contain at least 8 characters, including letters and numbers.'));
 					
 					} else {
 						setErrorPassword(t('Sign up failed. Please try again.'));
