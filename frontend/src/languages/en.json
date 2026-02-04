@@ -239,6 +239,7 @@
 	"You cannot play against yourself" : "You cannot play against yourself",
 	"Username must be 3-30 characters long and can only contain letters, numbers, underscores, hyphens, and periods." : "Username must be 3-30 characters long and can only contain letters, numbers, underscores, hyphens, and periods.",
 	"Invalid format of the email." : "Invalid format of the email.",
+	"Incorrect format of the password." : "Incorrect format of the password.",
 	"This password is too short. It must contain at least 8 characters." : "This password is too short. It must contain at least 8 characters.",
 	"This password is too common." : "This password is too common.",
 	"This password is entirely numeric." : "This password is entirely numeric.",
