@@ -182,7 +182,7 @@ const ProfileBasicInfo = ({ loadProfile, style }) => {
 		{error && <p className="tfa-message">{error}</p>}
         <p>{t("email")} <span>{profile.email}</span></p>
       </div>
-	  {profile.auth_provider !== "42api" && (
+	  {profile.auth_provider !== "42api" && profile.auth_provider !== "google" && (
 		<div className="mt-4">
 			<button
 				onClick={handleInitiateToggle2FA}

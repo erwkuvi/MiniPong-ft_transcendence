@@ -8,7 +8,7 @@ from users.signals import match_created, friendship_created, friendship_destroye
 def create_profile_for_new_user(sender, **kwargs):
     if kwargs['created']:
         user = kwargs['instance']
-        if user.auth_provider != '42api':
+        if user.auth_provider != '42api' and user.auth_provider != 'google':
             display_name = str(user.username) + str('_') + str(user.id)
             PlayerProfile.objects.create(user=user, display_name=display_name)
 

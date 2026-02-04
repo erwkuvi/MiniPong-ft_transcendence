@@ -124,7 +124,8 @@ class MatchViewSet(viewsets.ModelViewSet):
 
 
 # ---------------OAuth 42 API------------------------------------------------------------------------------------
-
+# class GoogleLoginView(views.APIView):
+    # permission_classes = [AllowAny]
 class OAuth42LoginView(views.APIView):
     permission_classes = [AllowAny]  # Allow any user to access this view
 

@@ -2,7 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from .validators import validate_file_size
 
-AUTH_PROVIDERS ={'email': 'email', '42api': '42api'}
+AUTH_PROVIDERS ={'email': 'email', '42api': '42api', 'google': 'Google'}
 MATCH_MODE ={'regular': 'regular', 'tournament': 'tournament'}
 
 class User(AbstractUser):
