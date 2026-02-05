@@ -22,6 +22,7 @@
 	display: flex;
 	width: 100%; 
 	justify-content: center; 
+	margin-bottom: 2rem;
 }
 
 .login .login-title {
@@ -47,11 +48,17 @@
 
 .status-label {
 	position: relative;
-	display: inline-block;
-	width: 100%;
-	/* max-width: 700px;
-	height: 80px;
-	cursor: pointer; */
+	display: flex;
+	width: 25em;
+	max-width: 1025px;
+	min-width: 60vb;
+
+	background-color: var(--fill-color);
+	border-radius: 5px;
+	overflow: hidden;
+	cursor: pointer;
+	white-space: nowrap;      
+    text-overflow: ellipsis; 
 }
 
 @media (max-width: 530px) {
@@ -117,25 +124,30 @@
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	width: auto;
-	min-width: 500px;
-	width: 300px;
 	max-width: 100%;
-	height: 100%;
+	width: 100%;
+	/* min-width: 500px; */
 	border-radius: 1px;
 	padding: 5px;
 	position: relative;
+	height: auto;
 
 	/* overflow: hidden; */
 }
 
 .status-switch .text {
+	flex: 1;
 	width: 50%;
 	text-align: center;
-	font-size: 30px;
+	font-size: 1.8em;
 	z-index: 2;
+	font-size: clamp(1.2em, 2vw, 1.8em);
 	white-space: nowrap;
 	position: relative;
+	white-space: nowrap;      
+    overflow: hidden;         
+    text-overflow: ellipsis; 
+	padding: 0.05em 0;
 }
 
 .status-switch .unchecked {
@@ -220,3 +232,98 @@ input[type="checkbox"]:checked + .status-label .status-switch .unchecked {
 	text-align: center;
 	margin-bottom: 1rem;
   }
+
+   @media (max-width: 750px) {
+	/* .loginCardHolderStyle {
+		width: 100%;
+		max-width: 90vw;
+		padding: 2rem 1.5rem;
+		box-sizing: border-box;
+		overflow: visible;
+	}
+	 */
+	.status-label {
+		flex-direction: column;
+		max-width: 90%;
+		border-radius: 10px;
+		/* width: 100%;
+		max-width: 85vw;
+		flex-direction: column; 
+		align-items: stretch;
+	
+		box-sizing: border-box;
+		border-radius: 10px; /* smoother corners */
+
+		margin: 0 auto; 
+	}
+
+	.status-switch {
+		flex-direction: column;
+		width: 100%;
+		max-width: 100%;
+		/* box-sizing: border-box; */
+
+	}
+
+	.status-switch .highlight {
+		width: 100%;
+		height: 50%; 
+		transform: translateY(0);
+	
+	}
+
+	input[type="checkbox"]:checked + .status-label .status-switch .highlight {
+		transform: translateY(100%);
+	}
+
+	.status-switch .text {
+		width: 100%;
+		text-align: center;
+		font-size: 1.2em; /* scales better */
+		padding: 0.4em 0;
+	}
+}
+
+@media (max-width: 620px) {
+    .loginCardHolderStyle {
+        padding: 0.4rem; /* Reduce padding on smaller screens */
+    }
+
+	.status-label{
+		width: 100vw; /* Set a max width to prevent it from becoming too wide */
+        max-width: 87vw; /* Set a limit to its maximum width */
+        min-width: 0px; /* Ensure it doesn't exceed the container's width */
+        margin: 0 auto;
+		box-sizing: border-box; 
+	}
+    .login-box {
+        padding: 0.4rem;
+		box-sizing: border-box;
+		width: 100%;
+    }
+
+	.login-toggle{
+		width: 100%;
+        display: flex;
+        justify-content: space-evenly;
+        flex-direction: column; 
+        margin-bottom: 1rem;
+	}
+
+	.status-switch {
+		flex-direction: column;
+		width: 100%;
+		/* max-width: 80vw; */
+		box-sizing: border-box;
+		
+	}
+	
+	.status-switch .highlight {
+		width: 100% ;
+	}
+    /* Keep text readable and responsive */
+    .status-switch .text {
+        font-size: 1rem;
+    }
+
+}

@@ -36,7 +36,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 HOST_IP = env('HOST_IP')
 FRONTEND_URL = env('FRONTEND_URL')
 
-# DEBUG = False
+# DEBUG = FalseF
 
 # Security settings
 SECURE_SSL_REDIRECT = True  # Redirect all HTTP requests to HTTPS
