@@ -8,6 +8,8 @@ from django.core.files import File
 from django.shortcuts import redirect
 from django.conf import settings
 from django.contrib.auth import authenticate
+from google.auth.transport import requests as google_requests
+from google.oauth2 import id_token
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.decorators import api_view, action
 from rest_framework import generics, viewsets, status, views, exceptions
@@ -124,8 +126,95 @@ class MatchViewSet(viewsets.ModelViewSet):
 
 
 # ---------------OAuth 42 API------------------------------------------------------------------------------------
-# class GoogleLoginView(views.APIView):
-    # permission_classes = [AllowAny]
+class OAuthGoogleUrlView(views.APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        # 1. Generate State
+        state = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(32))
+        
+        # 2. Store in session (Name this whatever you like)
+        request.session['google_oauth_state'] = state
+        
+        # 3. Define Parameters
+        params = {
+            "client_id": settings.GOOGLE_OAUTH_CLIENT_ID,
+            "redirect_uri": settings.API_GOOGLE_REDIRECT_URI,
+            "response_type": "code",
+            "scope": "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile",
+            "state": state,
+            "access_type": "offline", # Useful if you need refresh tokens later
+            "prompt": "select_account" # Forces account selection screen
+        }
+
+        # 4. Construct URL cleanly
+        query_string = urlencode(params)
+        auth_url = f"{settings.API_GOOGLE_AUTH_URL}?{query_string}"
+
+        # return Response({"url": auth_url}, status=status.HTTP_200_OK)
+        return redirect(auth_url)
+
+class OAuthGoogleCallbackView(views.APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        token = request.data.get("token")
+        if not token:
+            return Response({"error": "Token not provided", "status":False}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            id_info = id_token.verify_oauth2_token(
+                    token,
+                    google_requests.Request(),
+                    settings.GOOGLE_OAUTH_CLIENT_ID
+                    )
+            print(id_info)
+
+            # Get user data
+            email = id_info['email']
+            username = id_info.get('sub')  # Best unique identifier
+            first_name = id_info.get('given_name', '')
+            last_name = id_info.get('family_name', '')
+            avatar_url = id_info.get('picture', '')
+            displayname = id_info.get('name')
+            # profile_pic_url = id_info.get('picture', '')
+
+            # Check if user exists, if not, create them
+            user, created = User.objects.get_or_create(
+                email=email,
+                defaults={'username': username, 'auth_provider': "google"}
+            )
+
+            # Only update displayname if the user is newly created
+            if created:
+                user.displayname = username
+                user.save()
+
+            player_profile, profile_created = PlayerProfile.objects.get_or_create(
+                user=user,
+                defaults={'display_name': username}
+            )
+
+            # Save avatar only if the user is new or profile is new
+            if avatar_url and (created or profile_created):
+                save_avatar_locally(avatar_url, player_profile, user)
+
+            # 5. Generate JWT tokens
+            refresh = RefreshToken.for_user(user)
+
+            return Response(
+                    {
+                        "tokens": {
+                            "access": str(refresh.access_token),
+                            "refresh": str(refresh),
+                            },
+                        "status": True
+                        },
+                    status=status.HTTP_200_OK
+                    )
+
+        except ValueError:
+            return Response({"error": "Invalid token", "status":False}, status=status.HTTP_400_BAD_REQUEST)
+
 class OAuth42LoginView(views.APIView):
     permission_classes = [AllowAny]  # Allow any user to access this view
 
