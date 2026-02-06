@@ -77,7 +77,8 @@ CORS_ORIGIN_ALLOW_ALL = False
 
 CORS_ALLOWED_ORIGINS = [
     FRONTEND_URL,
-	"https://localhost",
+    "{FRONTEND_URL}"
+	# "https://localhost",
 ]
 
 # ----------------- OAUTH 2.0 - 42 INTRA SETTINGS -----------------:
@@ -101,5 +102,5 @@ INTRA_SECRET_42 = os.environ['CLIENT_SECRET']
 
 API_GOOGLE_AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth'
 API_GOOGLE_REDIRECT_URI = '{FRONTEND_URL}/google-callback/'
-GOOGLE_OAUTH_CLIENT_ID=os.environ['GOOGLE_OAUTH_CLIENT']
+GOOGLE_OAUTH_CLIENT_ID=os.environ['GOOGLE_OAUTH_CLIENT_ID']
 GOOGLE_OAUTH_CLIENT_SECRET=os.environ['GOOGLE_OAUTH_CLIENT_SECRET']

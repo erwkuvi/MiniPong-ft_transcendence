@@ -160,7 +160,7 @@ class OAuthGoogleCallbackView(views.APIView):
     def get(self, request):
         code = request.query_params.get('code')
         state = request.query_params.get('state')
-        session_state = request.session.get('google_oauth_state')
+        session_state = request.session.get('google_auth_state')
 
         # 2. VERIFY STATE
         if not state or state != session_state:
