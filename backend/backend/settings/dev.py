@@ -72,3 +72,7 @@ INTRA_UID_42 = os.environ['CLIENT_ID']
 # API CLIENT SECRET
 INTRA_SECRET_42 = os.environ['CLIENT_SECRET']
 
+API_GOOGLE_AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth'
+API_GOOGLE_REDIRECT_URI = 'http://localhost:8000/google-callback/'
+GOOGLE_OAUTH_CLIENT_ID=os.environ['GOOGLE_OAUTH_CLIENT_ID']
+GOOGLE_OAUTH_CLIENT_SECRET=os.environ['GOOGLE_OAUTH_CLIENT_SECRET']

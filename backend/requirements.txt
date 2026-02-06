@@ -19,3 +19,4 @@ daphne==4.1.2 #for channels
 django-channels-jwt==0.0.3
 Pillow  											# Image processing for the profile photos handling
 #dj-database-url  							# Database configuration from URL -- maybe not needed anymore
+google-api-python-client

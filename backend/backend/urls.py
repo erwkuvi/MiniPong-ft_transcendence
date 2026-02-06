@@ -5,7 +5,7 @@ from django.urls import path, include
 from django.shortcuts import redirect
 #from .users import views
 from friends.views import UserListView
-from users.views import OTPLoginView, OAuth42LoginView, OAuth42CallbackView, OAuth42MatchView, OAuth42CallbackMatchView
+from users.views import OTPLoginView, OAuth42LoginView, OAuth42CallbackView, OAuth42MatchView, OAuth42CallbackMatchView, OAuthGoogleUrlView, OAuthGoogleCallbackView
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -34,6 +34,8 @@ urlpatterns = [
     path('42-callback-match/', OAuth42CallbackMatchView.as_view(), name='42-callback-match'),
     path('mfa/', OTPLoginView.as_view(), name='mfa'),
     #path('api/test/', include('notifications.urls')),
+    path('google-login/', OAuthGoogleUrlView.as_view(), name='google-login'),
+    path('google-callback/', OAuthGoogleCallbackView.as_view(), name='google-callback'),
 ]
 
 if settings.DEBUG:
