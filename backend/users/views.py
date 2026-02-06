@@ -157,31 +157,121 @@ class OAuthGoogleUrlView(views.APIView):
 class OAuthGoogleCallbackView(views.APIView):
     permission_classes = [AllowAny]
 
+    def get(self, request):
+        code = request.query_params.get('code')
+        state = request.query_params.get('state')
+        session_state = request.session.get('google_oauth_state')
+
+        # 2. VERIFY STATE
+        if not state or state != session_state:
+            return Response({"error": "CSRF State mismatch"}, status=403)
+
+        # Clean up session
+        del request.session['google_oauth_state']
+        # 3. Exchange Code for ID Token
+        token_endpoint = "https://oauth2.googleapis.com/token"
+        data = {
+            "code": code,
+            "client_id": settings.GOOGLE_OAUTH_CLIENT_ID,
+            "client_secret": settings.GOOGLE_OAUTH_CLIENT_SECRET, # REQUIRED
+            "redirect_uri": settings.API_GOOGLE_REDIRECT_URI,
+            "grant_type": "authorization_code",
+        }
+        
+        response = requests.post(token_endpoint, data=data)
+        token_data = response.json()
+        
+        if "error" in token_data:
+            return Response({"error": token_data.get("error_description")}, status=400)
+
+        # 3. Process the Login
+        return self.process_login(token_data.get("id_token"))
+
     def post(self, request):
         token = request.data.get("token")
         if not token:
-            return Response({"error": "Token not provided", "status":False}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "Token not provided"}, status=400)
+        return self.process_login(token)
+
+            # Get user data
+        #     email = id_info['email']
+        #     username = id_info.get('name')  # Best unique identifier
+        #     first_name = id_info.get('given_name', '')
+        #     last_name = id_info.get('family_name', '')
+        #     avatar_url = id_info.get('picture', '')
+        #     displayname = id_info.get('name')
+        #     full_name = id_info.get('name', email.split('@')[0])
+        #     # profile_pic_url = id_info.get('picture', '')
+        #
+        #     # Check if user exists, if not, create them
+        #     user, created = User.objects.get_or_create(
+        #         email=email,
+        #         defaults={
+        #             'username': username, 
+        #             'auth_provider': "google",
+        #             'displayname': full_name
+        #             }
+        #     )
+        #
+        #     # Only update displayname if the user is newly created
+        #     # if created:
+        #     #     user.displayname = username
+        #     #     user.save()
+        #
+        #     player_profile, profile_created = PlayerProfile.objects.get_or_create(
+        #         user=user,
+        #         defaults={'display_name': username}
+        #     )
+        #
+        #     # Save avatar only if the user is new or profile is new
+        #     if avatar_url and (created or profile_created):
+        #         save_avatar_locally(avatar_url, player_profile, user)
+        #
+        #     # 5. Generate JWT tokens
+        #     refresh = RefreshToken.for_user(user)
+        #
+        #     return Response(
+        #             {
+        #                 "tokens": {
+        #                     "access": str(refresh.access_token),
+        #                     "refresh": str(refresh),
+        #                     },
+        #                 "status": True
+        #                 },
+        #             status=status.HTTP_200_OK
+        #             )
+        #
+        # except ValueError: # Google token specific error
+        #     return Response({"error": "Invalid token", "status": False}, status=status.HTTP_400_BAD_REQUEST)
+        # except Exception as e: # Catch-all for DB or other issues
+        #     return Response({"error": str(e), "status": False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def process_login(self, token):
+        # Move your existing POST logic (verify_oauth2_token, get_or_create) 
+        # into this helper method so both GET and POST can use it.
         try:
             id_info = id_token.verify_oauth2_token(
-                    token,
-                    google_requests.Request(),
-                    settings.GOOGLE_OAUTH_CLIENT_ID
-                    )
-            print(id_info)
+                token,
+                google_requests.Request(),
+                settings.GOOGLE_OAUTH_CLIENT_ID,
+                # clock_skew=10  
+            )
 
             # Get user data
             email = id_info['email']
             username = id_info.get('sub')  # Best unique identifier
-            first_name = id_info.get('given_name', '')
-            last_name = id_info.get('family_name', '')
+            full_name = id_info.get('name', email.split('@')[0])
             avatar_url = id_info.get('picture', '')
-            displayname = id_info.get('name')
             # profile_pic_url = id_info.get('picture', '')
 
             # Check if user exists, if not, create them
             user, created = User.objects.get_or_create(
                 email=email,
-                defaults={'username': username, 'auth_provider': "google"}
+                defaults={
+                    'username': username, 
+                    'auth_provider': "google"
+                    # 'displayname': full_name
+                    }
             )
 
             # Only update displayname if the user is newly created
@@ -191,7 +281,7 @@ class OAuthGoogleCallbackView(views.APIView):
 
             player_profile, profile_created = PlayerProfile.objects.get_or_create(
                 user=user,
-                defaults={'display_name': username}
+                defaults={'display_name': full_name}
             )
 
             # Save avatar only if the user is new or profile is new
@@ -201,19 +291,19 @@ class OAuthGoogleCallbackView(views.APIView):
             # 5. Generate JWT tokens
             refresh = RefreshToken.for_user(user)
 
-            return Response(
-                    {
-                        "tokens": {
-                            "access": str(refresh.access_token),
-                            "refresh": str(refresh),
-                            },
-                        "status": True
-                        },
-                    status=status.HTTP_200_OK
-                    )
+            tokens = {
+                "access": str(refresh.access_token),
+                "refresh": str(refresh),
+            }
 
-        except ValueError:
-            return Response({"error": "Invalid token", "status":False}, status=status.HTTP_400_BAD_REQUEST)
+            if self.request.method == 'GET':
+                frontend_url = f"{settings.FRONTEND_URL}/login/callback?access={tokens['access']}&refresh={tokens['refresh']}"
+                return redirect(frontend_url)
+            
+            return Response({"tokens": tokens, "status": True}, status=200)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=400)
 
 class OAuth42LoginView(views.APIView):
     permission_classes = [AllowAny]  # Allow any user to access this view
