@@ -254,7 +254,7 @@ class OAuthGoogleCallbackView(views.APIView):
                 token,
                 google_requests.Request(),
                 settings.GOOGLE_OAUTH_CLIENT_ID,
-                # clock_skew=10  
+                clock_skew_in_seconds=10  # Standard practice is 5-10 seconds
             )
 
             # Get user data
