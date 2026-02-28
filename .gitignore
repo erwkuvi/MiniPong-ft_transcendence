@@ -7,3 +7,4 @@ frontend/node_modules/
 migrations/
 backend/media/qrcode/
 nginx/certs/*
+todo.txt

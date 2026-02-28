@@ -8,7 +8,7 @@ const LogInButton = () => {
 	const { t } = useTranslation();
 
 	const handleClick = () => {
-		window.location.href = `${baseUrl}/42-login/`;
+		window.location.href = `${baseUrl}/google-login/`;
 	};
 
 	return (
